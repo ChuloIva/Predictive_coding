@@ -43,7 +43,14 @@ def _chat_prefix(tokenizer, system: str, user: str) -> str:
         {"role": "system", "content": system},
         {"role": "user", "content": user},
     ]
-    return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    # `enable_thinking=False`: keep the Phase-2 prefix free of any thinking block so the read-back
+    # hidden states align with the Phase-1 (thinking-suppressed) completion. Templates lacking the
+    # flag raise — fall back to a plain render.
+    try:
+        return tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True, enable_thinking=False)
+    except Exception:
+        return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
 
 def _truncation_points(n_tokens: int, cfg: ExtractConfig) -> list[int]:

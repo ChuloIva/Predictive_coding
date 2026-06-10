@@ -5,8 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 
-# Base model — keep continuity with the planned LoRA/RL base (idea.md).
-MODEL_NAME = "Qwen/Qwen2.5-3B-Instruct"
+# Base model — the default we run steering / metastability / basin experiments on. Override per
+# notebook via the `MODEL_NAME` cell or the STEER_MODEL env var. `google/gemma-4-12B-it` is the
+# encoder-free unified multimodal Gemma 4 (June 2026); it runs text-only here and steers like any
+# causal LM. (Earlier pilots used Qwen/Qwen2.5-3B-Instruct — switch back by setting this.)
+MODEL_NAME = "google/gemma-4-12B-it"
 
 
 @dataclass

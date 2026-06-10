@@ -137,14 +137,15 @@ def flow_field(
 
     layers = _layers(cmodel)
     block = layers[layer]
-    dev, dt = cmodel.device, cmodel.model.dtype
+    dev = cmodel.device
 
     # grid spans ±extent (PCA-coordinate units) around the projected-activation mean (origin ~0 in
     # centered PCA coords). Derive `extent` from the projected data range, e.g. ~2-3× its std.
     span = float(extent)
     axis = np.linspace(-span, span, grid_n, dtype=np.float32)
     gz = np.stack(np.meshgrid(axis, axis, indexing="xy"), axis=-1).reshape(-1, 2)   # [G, 2]
-    g_full = torch.tensor(pca.invert(gz), device=dev, dtype=dt)                       # [G, d]
+    # keep float32 here; cast to the live hidden-state dtype inside the hook (robust to 4-bit models)
+    g_full = torch.tensor(pca.invert(gz), device=dev, dtype=torch.float32)            # [G, d]
     G = gz.shape[0]
 
     # batch the seed prompt G times; each row gets its own injected activation at token_pos

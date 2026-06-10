@@ -4,3 +4,20 @@
 /predictive-processing-overview.html
 /transcript.txt
 /.env
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Secrets & local env (anywhere in the tree)
+.env
+**/.env
+
+# OS cruft
+.DS_Store
+**/.DS_Store
+
+# Extracted control-vector bundles (model-specific, regenerable; loaded from Drive/upload on Colab)
+**/steering/out/
+*.pkl

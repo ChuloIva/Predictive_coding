@@ -24,6 +24,7 @@ import numpy as np
 
 from . import metastability as M
 from .probes_eval import GEN_PROMPTS, READ_BATTERY, build_conditions
+from .steer import _chat   # one chat-template helper (handles Gemma 4 thinking mode) for the whole lab
 
 __all__ = [
     "read_states_and_logits", "run_generative", "run_readonly", "run_experiment",
@@ -34,15 +35,6 @@ __all__ = [
 # turns under this instruction, and it's identical across every condition so surprisal/entropy stay
 # comparable. (The passage itself, not the framing, is what we score.)
 READ_PROMPT = "Write a few plain sentences about something ordinary."
-
-
-def _chat(tokenizer, prompt: str, system: str | None = None) -> str:
-    """Chat-template prefix with the generation prompt — matches `steer.generate_steered`."""
-    messages = []
-    if system:
-        messages.append({"role": "system", "content": system})
-    messages.append({"role": "user", "content": prompt})
-    return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
 
 def read_states_and_logits(
