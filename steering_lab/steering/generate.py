@@ -25,9 +25,10 @@ def build_chat_prompt(tokenizer, system: str, user: str) -> str:
         {"role": "system", "content": system},
         {"role": "user", "content": user},
     ]
-    # `enable_thinking=False` suppresses Gemma 4's thinking block — otherwise the chain-of-thought
-    # would land in the generated completion and pollute the contrastive training data. Templates
-    # that don't define the flag raise, so fall back to a plain render.
+    # `enable_thinking=False` suppresses the thinking block (Qwen3.5 THINKS BY DEFAULT; same for
+    # Gemma 4) — otherwise the chain-of-thought would land in the generated completion and pollute
+    # the contrastive training data. Templates that don't define the flag raise, so fall back to a
+    # plain render.
     try:
         return tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True, enable_thinking=False
@@ -86,8 +87,8 @@ def generate_dataset(
     from vllm import LLM, SamplingParams  # imported lazily (heavy, GPU-only)
 
     if tokenizer is None:
-        from transformers import AutoTokenizer
-        tokenizer = AutoTokenizer.from_pretrained(cfg.model_name)
+        from .steer import _load_tokenizer  # processor-aware (Qwen3.5/Gemma-4 expose it that way)
+        tokenizer = _load_tokenizer(cfg.model_name, os.environ.get("HF_TOKEN"))
     if llm is None:
         llm = LLM(
             model=cfg.model_name,

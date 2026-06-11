@@ -6,10 +6,13 @@ from dataclasses import dataclass, field
 
 
 # Base model — the default we run steering / metastability / basin experiments on. Override per
-# notebook via the `MODEL_NAME` cell or the STEER_MODEL env var. `google/gemma-4-12B-it` is the
-# encoder-free unified multimodal Gemma 4 (June 2026); it runs text-only here and steers like any
-# causal LM. (Earlier pilots used Qwen/Qwen2.5-3B-Instruct — switch back by setting this.)
-MODEL_NAME = "google/gemma-4-12B-it"
+# notebook via the `MODEL_NAME` cell or the STEER_MODEL env var. Qwen3.5-4B (March 2026) is the
+# post-trained chat model (no separate -Instruct repo): multimodal vision-language, hybrid Gated
+# DeltaNet decoder, Apache 2.0, ungated, supported on stable vLLM since day 1. We run it text-only
+# with thinking DISABLED — Qwen3.5 thinks by default, so every chat-template call must pass
+# `enable_thinking=False` (the helpers in generate.py / steer.py do). bf16 fits a Colab T4/L4.
+# (Previous defaults: google/gemma-4-12B-it — needs nightly vLLM; Qwen/Qwen2.5-3B-Instruct.)
+MODEL_NAME = "Qwen/Qwen3.5-4B"
 
 
 @dataclass

@@ -108,9 +108,14 @@ def load_model_and_tokenizer(
     else:
         kw["torch_dtype"] = td
 
-    # gemma-4 (all sizes, encoder-free multimodal) and gemma-3 4b/12b/27b need a multimodal class.
+    # Multimodal checkpoints need a multimodal auto class: gemma-4 (all sizes, encoder-free),
+    # gemma-3 4b/12b/27b, and qwen3.5 (vision-language with a hybrid DeltaNet text decoder).
     name_l = model_name.lower()
-    multimodal_first = "gemma-4" in name_l or ("gemma-3" in name_l and "-1b" not in name_l)
+    multimodal_first = (
+        "gemma-4" in name_l
+        or ("gemma-3" in name_l and "-1b" not in name_l)
+        or "qwen3.5" in name_l or "qwen3-5" in name_l
+    )
     model, last_err = None, None
     for loader in _model_loader_classes(multimodal_first):
         try:
@@ -136,8 +141,8 @@ def _chat(tokenizer, prompt: str, system: str | None = None) -> str:
     if system:
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
-    # `enable_thinking=False` suppresses Gemma 4's thinking block (it would pollute the trajectory /
-    # surprisal reads); templates that don't define the flag simply ignore it.
+    # `enable_thinking=False` suppresses the thinking block — Qwen3.5 thinks by default, Gemma 4
+    # too (it would pollute the trajectory / surprisal reads); templates without the flag fall back.
     try:
         return tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True, enable_thinking=False)
