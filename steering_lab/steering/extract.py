@@ -121,6 +121,13 @@ def extract_vectors(model, tokenizer, pairs: dict, cfg: ExtractConfig | None = N
     from repeng import ControlVector  # lazy
 
     cfg = cfg or ExtractConfig()
+    hidden_layers = cfg.hidden_layers
+    if not hidden_layers:
+        # repeng's own default reads model.config.num_hidden_layers, which doesn't exist on
+        # multimodal wrapper configs (Qwen3.5 keeps it in text_config; same for Gemma 4) — build
+        # the same "all layers but the first" range from the real decoder stack instead.
+        from .steer import decoder_layers
+        hidden_layers = list(range(-1, -len(decoder_layers(model)), -1))
     vectors = {}
     for mech, entries in pairs.items():
         if not entries:
@@ -133,7 +140,7 @@ def extract_vectors(model, tokenizer, pairs: dict, cfg: ExtractConfig | None = N
             entries,
             method=cfg.method,
             batch_size=cfg.batch_size,
-            hidden_layers=cfg.hidden_layers,
+            hidden_layers=hidden_layers,
         )
     return vectors
 
