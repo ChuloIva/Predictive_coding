@@ -21,3 +21,6 @@ __pycache__/
 # Extracted control-vector bundles (model-specific, regenerable; loaded from Drive/upload on Colab)
 **/steering/out/
 *.pkl
+# ... except the published bundles (Qwen3.5-4B): clinical (looping arm) + PC primitives (REBUS arm)
+!steering_lab/steering/output/control_vectors.pkl
+!steering_lab/steering/output/control_vectors_pc.pkl
